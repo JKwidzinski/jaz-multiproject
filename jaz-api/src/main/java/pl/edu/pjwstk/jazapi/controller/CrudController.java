@@ -1,6 +1,5 @@
 package pl.edu.pjwstk.jazapi.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class CrudController<T extends DbEntity> {
-    @Autowired
+
     private final CrudService<T> service;
 
     public CrudController(CrudService<T> service) {
@@ -21,9 +20,11 @@ public abstract class CrudController<T extends DbEntity> {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Map<String, Object>>> getAll() {
+    public ResponseEntity<List<Map<String, Object>>> getAll(@RequestParam(defaultValue = "1", name = "page") int page,
+                                                            @RequestParam(defaultValue = "4", name = "size") int size,
+                                                            @RequestParam(defaultValue = "desc,id", name = "sort") String sort){
         try {
-            List<T> all = service.getAll();
+            List<T> all = service.getAll(page, size, sort);
             List<Map<String, Object>> payload = all.stream()
                     .map(obj -> transformToDTO().apply(obj))
                     .collect(Collectors.toList());
